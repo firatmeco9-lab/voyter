@@ -22,8 +22,8 @@ type AdminOption = {
 
 type ActivePanel = "polls" | "create" | "suggestions" | "sponsors";
 
-const ADMIN_PASSWORD = "voyter123";
-
+const ADMIN_PASSWORD =
+  process.env.NEXT_PUBLIC_ADMIN_PASSWORD || "voyter123";
 const commentNames = [
   "AsabiKarınca77",
   "TurboTost35",
