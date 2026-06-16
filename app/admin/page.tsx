@@ -1,5 +1,6 @@
 "use client";
-
+import { collection, getDocs } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 import { useEffect, useState } from "react";
 import {
   addPoll,
@@ -76,13 +77,19 @@ export default function AdminPage() {
     initializeAdmin();
   }, []);
 
-  async function refreshData() {
-    setPolls(getPolls());
+ async function refreshData() {
+  const snapshot = await getDocs(collection(db, "polls"));
 
-    const firestoreSuggestions = await getSuggestions();
+  const firestorePolls = snapshot.docs.map((doc) => ({
+    ...(doc.data() as Poll),
+  }));
 
-    setSuggestions(firestoreSuggestions);
-  }
+  setPolls(firestorePolls);
+
+  const firestoreSuggestions = await getSuggestions();
+
+  setSuggestions(firestoreSuggestions);
+}
 
   async function handleLogin() {
     if (passwordInput.trim() === ADMIN_PASSWORD) {
