@@ -21,7 +21,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
     if (!poll) {
       return {
-        title: "Anket Bulunamadı | Voyter",
+        title: "Anket Bulunamadı",
         description: "Voyter üzerinde anonim anketlere katıl ve yorumları oku.",
       };
     }
@@ -31,10 +31,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       poll.seoDesc || "Anonim oy ver, yorumları oku ve tartışmaya katıl.";
 
     return {
-      title: `${title} | Voyter`,
+      title,
       description,
       openGraph: {
-        title: `${title} | Voyter`,
+        title,
         description,
         url: `https://voyter.vercel.app/poll/${slug}`,
         siteName: "Voyter",
@@ -52,7 +52,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       },
       twitter: {
         card: "summary_large_image",
-        title: `${title} | Voyter`,
+        title,
         description,
         images: poll.imageUrl ? [poll.imageUrl] : [],
       },
@@ -62,7 +62,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     };
   } catch {
     return {
-      title: "Voyter Anket | Voyter",
+      title: "Voyter Anket",
       description: "Anonim oy ver, yorumları oku ve tartışmaya katıl.",
     };
   }
