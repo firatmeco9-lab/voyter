@@ -37,13 +37,11 @@ export default function SearchPage() {
       const title = poll.title?.toLowerCase() || "";
       const category = poll.category?.toLowerCase() || "";
       const slug = poll.slug?.toLowerCase() || "";
-      const keywords = poll.keywords?.join(" ").toLowerCase() || "";
 
       return (
         title.includes(cleanQuery) ||
         category.includes(cleanQuery) ||
-        slug.includes(cleanQuery) ||
-        keywords.includes(cleanQuery)
+        slug.includes(cleanQuery)
       );
     });
   }, [polls, query]);
@@ -68,7 +66,7 @@ export default function SearchPage() {
           </h1>
 
           <p className="mt-2 text-slate-500">
-            Başlığa, kategoriye veya anahtar kelimeye göre anketleri hızlıca bul.
+            Başlığa veya kategoriye göre anketleri hızlıca bul.
           </p>
         </div>
 
@@ -88,7 +86,7 @@ export default function SearchPage() {
         ) : (
           <div className="space-y-6">
             {filteredPolls.map((poll) => (
-              <PollCard key={poll.id} poll={poll} />
+              <PollCard key={poll.firestoreId || poll.id} poll={poll} />
             ))}
 
             {filteredPolls.length === 0 && (
