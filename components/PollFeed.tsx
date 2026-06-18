@@ -4,45 +4,28 @@ import { useEffect, useMemo, useState } from "react";
 import PollCard from "@/components/PollCard";
 import AdBox from "@/components/AdBox";
 import { Poll } from "@/types/poll";
-import { getFirestorePolls } from "@/store/firestorePollStore";
 
 type FeedType = "popular" | "latest";
 
 type Props = {
   feedType: FeedType;
+  initialPolls: Poll[];
 };
 
 const PAGE_SIZE = 5;
 
-export default function PollFeed({ feedType }: Props) {
-  const [polls, setPolls] = useState<Poll[]>([]);
+export default function PollFeed({ feedType, initialPolls }: Props) {
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
-  const [isLoaded, setIsLoaded] = useState(false);
-
-  useEffect(() => {
-    async function loadPolls() {
-      try {
-        const loadedPolls = await getFirestorePolls();
-        setPolls(loadedPolls);
-      } catch (error) {
-        console.error("Firestore anketleri yüklenemedi:", error);
-      } finally {
-        setIsLoaded(true);
-      }
-    }
-
-    loadPolls();
-  }, []);
 
   useEffect(() => {
     setVisibleCount(PAGE_SIZE);
   }, [feedType]);
 
   const sortedPolls = useMemo(() => {
-    const clonedPolls = [...polls];
+    const clonedPolls = [...initialPolls];
 
     if (feedType === "latest") {
-      return clonedPolls.sort((a, b) => b.id - a.id);
+      return clonedPolls.sort((a, b) => Number(b.id) - Number(a.id));
     }
 
     return clonedPolls.sort((a, b) => {
@@ -61,18 +44,10 @@ export default function PollFeed({ feedType }: Props) {
 
       return scoreB - scoreA;
     });
-  }, [polls, feedType]);
+  }, [initialPolls, feedType]);
 
   const visiblePolls = sortedPolls.slice(0, visibleCount);
   const hasMorePolls = visibleCount < sortedPolls.length;
-
-  if (!isLoaded) {
-    return (
-      <section className="mx-auto max-w-3xl px-4 py-10 text-center text-slate-500">
-        Anketler yükleniyor...
-      </section>
-    );
-  }
 
   if (visiblePolls.length === 0) {
     return (

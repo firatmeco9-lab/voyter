@@ -13,14 +13,21 @@ export default function HeaderNav({
   feedType,
   onFeedTypeChange,
 }: Props) {
+  const buttonClass = (active: boolean) =>
+    `rounded-2xl px-3 py-2.5 text-sm font-black transition md:px-4 md:py-3 ${
+      active
+        ? "bg-indigo-600 text-white shadow-sm"
+        : "border border-slate-200 bg-slate-50 text-slate-700 hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-700"
+    }`;
+
   return (
     <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/95 shadow-sm backdrop-blur">
       <div className="mx-auto max-w-3xl px-4 py-4 md:py-5">
         <div className="mb-4 flex items-center justify-between gap-4 md:mb-5">
           <Link href="/">
             <div className="group flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-indigo-600 shadow-sm md:h-11 md:w-11">
-                <span className="text-base font-black text-white md:text-lg">
+              <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-950 shadow-sm ring-2 ring-purple-500/40 md:h-11 md:w-11">
+                <span className="text-xl font-black text-purple-500 md:text-2xl">
                   V
                 </span>
               </div>
@@ -39,7 +46,6 @@ export default function HeaderNav({
 
           <div className="hidden items-center gap-2 md:flex">
             <div className="h-2 w-2 rounded-full bg-emerald-500" />
-
             <span className="text-sm font-medium text-slate-500">
               Canlı gündem
             </span>
@@ -48,25 +54,17 @@ export default function HeaderNav({
 
         <nav className="grid grid-cols-2 gap-2 sm:grid-cols-4">
           <button
-            onClick={() => onFeedTypeChange("popular")}
-            className={`rounded-2xl px-3 py-2.5 text-sm font-black transition md:px-4 md:py-3 ${
-              feedType === "popular"
-                ? "bg-indigo-600 text-white shadow-sm"
-                : "border border-slate-200 bg-slate-50 text-slate-700 hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-700"
-            }`}
+            onClick={() => onFeedTypeChange("latest")}
+            className={buttonClass(feedType === "latest")}
           >
-            Popüler
+            Gündem
           </button>
 
           <button
-            onClick={() => onFeedTypeChange("latest")}
-            className={`rounded-2xl px-3 py-2.5 text-sm font-black transition md:px-4 md:py-3 ${
-              feedType === "latest"
-                ? "bg-indigo-600 text-white shadow-sm"
-                : "border border-slate-200 bg-slate-50 text-slate-700 hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-700"
-            }`}
+            onClick={() => onFeedTypeChange("popular")}
+            className={buttonClass(feedType === "popular")}
           >
-            Güncel
+            Trendler
           </button>
 
           <Link

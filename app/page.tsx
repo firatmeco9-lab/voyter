@@ -1,25 +1,10 @@
-"use client";
+import HomeClient from "@/components/HomeClient";
+import { getFirestorePolls } from "@/store/firestorePollStore";
 
-import { useState } from "react";
-import HeaderNav from "@/components/HeaderNav";
-import PollFeed from "@/components/PollFeed";
-import BottomBannerAd from "@/components/BottomBannerAd";
+export const dynamic = "force-dynamic";
 
-type FeedType = "popular" | "latest";
+export default async function Home() {
+  const polls = await getFirestorePolls();
 
-export default function Home() {
-  const [feedType, setFeedType] = useState<FeedType>("popular");
-
-  return (
-    <main className="min-h-screen text-slate-900">
-      <HeaderNav
-        feedType={feedType}
-        onFeedTypeChange={setFeedType}
-      />
-
-      <PollFeed feedType={feedType} />
-
-      <BottomBannerAd />
-    </main>
-  );
+  return <HomeClient initialPolls={polls} />;
 }

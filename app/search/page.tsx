@@ -1,25 +1,55 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import PollCard from "@/components/PollCard";
-import { getPolls } from "@/store/pollStore";
+import { getFirestorePolls } from "@/store/firestorePollStore";
 import { Poll } from "@/types/poll";
 
 export default function SearchPage() {
   const [query, setQuery] = useState("");
   const [polls, setPolls] = useState<Poll[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setPolls(getPolls());
+    async function loadPolls() {
+      try {
+        const data = await getFirestorePolls();
+        setPolls(data);
+      } catch (error) {
+        console.error("Anketler yüklenirken hata oluştu:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadPolls();
   }, []);
 
-  const filteredPolls = polls.filter((poll) =>
-    poll.title.toLowerCase().includes(query.toLowerCase())
-  );
+  const filteredPolls = useMemo(() => {
+    const cleanQuery = query.trim().toLowerCase();
+
+    if (!cleanQuery) {
+      return polls;
+    }
+
+    return polls.filter((poll) => {
+      const title = poll.title?.toLowerCase() || "";
+      const category = poll.category?.toLowerCase() || "";
+      const slug = poll.slug?.toLowerCase() || "";
+      const keywords = poll.keywords?.join(" ").toLowerCase() || "";
+
+      return (
+        title.includes(cleanQuery) ||
+        category.includes(cleanQuery) ||
+        slug.includes(cleanQuery) ||
+        keywords.includes(cleanQuery)
+      );
+    });
+  }, [polls, query]);
 
   return (
-    <main className="min-h-screen px-4 py-6 text-slate-900">
+    <main className="min-h-screen bg-slate-50 px-4 py-6 text-slate-900">
       <div className="mx-auto max-w-3xl">
         <Link
           href="/"
@@ -38,7 +68,7 @@ export default function SearchPage() {
           </h1>
 
           <p className="mt-2 text-slate-500">
-            Başlığa göre anketleri hızlıca bul.
+            Başlığa, kategoriye veya anahtar kelimeye göre anketleri hızlıca bul.
           </p>
         </div>
 
@@ -46,22 +76,30 @@ export default function SearchPage() {
           <input
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="Anket başlığı ara..."
+            placeholder="Örn: Messi, Ronaldo, iPhone, ilişki..."
             className="w-full rounded-2xl border border-slate-200 bg-slate-50 p-4 text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-indigo-300 focus:bg-white focus:ring-4 focus:ring-indigo-100"
           />
         </div>
 
-        <div className="space-y-6">
-          {filteredPolls.map((poll) => (
-            <PollCard key={poll.id} poll={poll} />
-          ))}
+        {loading ? (
+          <div className="rounded-[1.75rem] border border-slate-200 bg-white p-6 text-center text-slate-500 shadow-sm">
+            Anketler yükleniyor...
+          </div>
+        ) : (
+          <div className="space-y-6">
+            {filteredPolls.map((poll) => (
+              <PollCard key={poll.id} poll={poll} />
+            ))}
 
-          {query.length > 0 && filteredPolls.length === 0 && (
-            <div className="rounded-[1.75rem] border border-slate-200 bg-white p-6 text-center text-slate-500 shadow-sm">
-              Aradığın anket bulunamadı.
-            </div>
-          )}
-        </div>
+            {filteredPolls.length === 0 && (
+              <div className="rounded-[1.75rem] border border-slate-200 bg-white p-6 text-center text-slate-500 shadow-sm">
+                {query.trim().length > 0
+                  ? "Aradığın anket bulunamadı."
+                  : "Henüz anket yok."}
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </main>
   );
