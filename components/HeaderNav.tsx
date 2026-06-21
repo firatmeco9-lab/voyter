@@ -16,8 +16,8 @@ export default function HeaderNav({
   const buttonClass = (active: boolean) =>
     `rounded-2xl px-3 py-2.5 text-sm font-black transition md:px-4 md:py-3 ${
       active
-        ? "bg-gradient-to-r from-sky-500 to-cyan-400 text-white shadow-sm"
-        : "border border-slate-200 bg-slate-50 text-slate-700 hover:border-sky-300 hover:bg-sky-50 hover:text-sky-700"
+        ? "bg-indigo-600 text-white shadow-sm"
+        : "border border-slate-200 bg-slate-50 text-slate-700 hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-700"
     }`;
 
   return (
@@ -26,14 +26,14 @@ export default function HeaderNav({
         <div className="mb-4 flex items-center justify-between gap-4 md:mb-5">
           <Link href="/">
             <div className="group flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-r from-sky-500 to-cyan-400 shadow-sm md:h-11 md:w-11">
+              <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-indigo-600 shadow-sm ring-2 ring-indigo-400/30 md:h-11 md:w-11">
                 <span className="text-xl font-black text-white md:text-2xl">
                   V
                 </span>
               </div>
 
               <div>
-                <h1 className="text-2xl font-black tracking-tight text-slate-950 transition group-hover:text-sky-600 md:text-3xl">
+                <h1 className="text-2xl font-black tracking-tight text-slate-950 transition group-hover:text-indigo-600 md:text-3xl">
                   Voyter
                 </h1>
 
@@ -70,14 +70,14 @@ export default function HeaderNav({
 
           <Link
             href="/search"
-            className="flex items-center justify-center rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-black text-slate-700 transition hover:border-sky-300 hover:bg-sky-50 hover:text-sky-700 md:px-4 md:py-3"
+            className="flex items-center justify-center rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-black text-slate-700 transition hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-700 md:px-4 md:py-3"
           >
             Anket Ara
           </Link>
 
           <Link
             href="/suggest"
-            className="flex items-center justify-center rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-black text-slate-700 transition hover:border-sky-300 hover:bg-sky-50 hover:text-sky-700 md:px-4 md:py-3"
+            className="flex items-center justify-center rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-black text-slate-700 transition hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-700 md:px-4 md:py-3"
           >
             Anket Öner
           </Link>
