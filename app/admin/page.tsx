@@ -1,11 +1,12 @@
 "use client";
+
+import { useEffect, useState } from "react";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import { useEffect, useState } from "react";
+import { uploadImage } from "@/lib/uploadImage";
 import {
   addPoll,
   deletePoll,
-  getPolls,
   updatePoll,
 } from "@/store/pollStore";
 import {
@@ -25,6 +26,7 @@ type ActivePanel = "polls" | "create" | "suggestions" | "sponsors";
 
 const ADMIN_PASSWORD =
   process.env.NEXT_PUBLIC_ADMIN_PASSWORD || "voyter123";
+
 const commentNames = [
   "AsabiKarınca77",
   "TurboTost35",
@@ -51,6 +53,7 @@ export default function AdminPage() {
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("Gündem");
   const [imageUrl, setImageUrl] = useState("");
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
 
   const [seoTitle, setSeoTitle] = useState("");
   const [seoDescription, setSeoDescription] = useState("");
@@ -77,19 +80,18 @@ export default function AdminPage() {
     initializeAdmin();
   }, []);
 
- async function refreshData() {
-  const snapshot = await getDocs(collection(db, "polls"));
+  async function refreshData() {
+    const snapshot = await getDocs(collection(db, "polls"));
 
-  const firestorePolls = snapshot.docs.map((doc) => ({
-    ...(doc.data() as Poll),
-  }));
+    const firestorePolls = snapshot.docs.map((doc) => ({
+      ...(doc.data() as Poll),
+    }));
 
-  setPolls(firestorePolls);
+    setPolls(firestorePolls);
 
-  const firestoreSuggestions = await getSuggestions();
-
-  setSuggestions(firestoreSuggestions);
-}
+    const firestoreSuggestions = await getSuggestions();
+    setSuggestions(firestoreSuggestions);
+  }
 
   async function handleLogin() {
     if (passwordInput.trim() === ADMIN_PASSWORD) {
@@ -188,6 +190,31 @@ export default function AdminPage() {
 
     setComments(["", ""]);
     setActivePanel("create");
+  }
+
+  async function handleImageUpload(
+    event: React.ChangeEvent<HTMLInputElement>
+  ) {
+    const file = event.target.files?.[0];
+
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      alert("Lütfen sadece görsel dosyası seç.");
+      return;
+    }
+
+    try {
+      setIsUploadingImage(true);
+
+      const uploadedUrl = await uploadImage(file);
+      setImageUrl(uploadedUrl);
+    } catch (error) {
+      console.error("Görsel yüklenemedi:", error);
+      alert("Görsel yüklenemedi. Firebase Storage ayarlarını kontrol et.");
+    } finally {
+      setIsUploadingImage(false);
+    }
   }
 
   async function savePollFromForm() {
@@ -537,20 +564,39 @@ export default function AdminPage() {
                   className="w-full rounded-2xl border border-slate-700/50 bg-slate-950/40 p-4 outline-none placeholder:text-slate-500"
                 />
 
-                <input
-                  value={imageUrl}
-                  onChange={(e) => setImageUrl(e.target.value)}
-                  placeholder="Anket fotoğraf URL'si"
-                  className="w-full rounded-2xl border border-slate-700/50 bg-slate-950/40 p-4 outline-none placeholder:text-slate-500"
-                />
+                <div className="space-y-4 rounded-3xl border border-slate-700/40 bg-slate-950/40 p-4">
+                  <h3 className="text-lg font-black">Anket Görseli</h3>
 
-                {imageUrl.trim().length > 0 && (
-                  <img
-                    src={imageUrl.trim()}
-                    alt="Önizleme"
-                    className="h-56 w-full rounded-3xl object-cover"
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    className="w-full rounded-2xl border border-slate-700/50 bg-slate-900/50 p-4 text-slate-300"
                   />
-                )}
+
+                  {isUploadingImage && (
+                    <div className="rounded-2xl border border-cyan-400/30 bg-cyan-500/10 p-4 text-sm font-bold text-cyan-300">
+                      Görsel yükleniyor...
+                    </div>
+                  )}
+
+                  {imageUrl.trim().length > 0 && (
+                    <div className="space-y-3">
+                      <img
+                        src={imageUrl.trim()}
+                        alt="Önizleme"
+                        className="h-56 w-full rounded-3xl object-cover"
+                      />
+
+                      <input
+                        value={imageUrl}
+                        onChange={(e) => setImageUrl(e.target.value)}
+                        placeholder="Görsel URL"
+                        className="w-full rounded-2xl border border-slate-700/50 bg-slate-900/50 p-4 outline-none placeholder:text-slate-500"
+                      />
+                    </div>
+                  )}
+                </div>
 
                 <div className="rounded-3xl border border-slate-700/40 bg-slate-950/40 p-4">
                   <h3 className="mb-4 text-lg font-black">SEO Ayarları</h3>
@@ -661,9 +707,12 @@ export default function AdminPage() {
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                   <button
                     onClick={savePollFromForm}
-                    className="w-full rounded-2xl bg-gradient-to-r from-violet-500 to-sky-400 py-4 font-black text-white"
+                    disabled={isUploadingImage}
+                    className="w-full rounded-2xl bg-gradient-to-r from-violet-500 to-sky-400 py-4 font-black text-white disabled:cursor-not-allowed disabled:opacity-50"
                   >
-                    {editingPollId
+                    {isUploadingImage
+                      ? "Görsel Yükleniyor..."
+                      : editingPollId
                       ? "Anketi Güncelle"
                       : editingSuggestionId
                       ? "Düzenle ve Yayınla"
