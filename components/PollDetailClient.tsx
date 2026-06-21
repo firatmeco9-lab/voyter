@@ -2,15 +2,15 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
 import CommentCard from "@/components/CommentCard";
 import CommentInput from "@/components/CommentInput";
 import { getAnonymousName } from "@/lib/getAnonymousName";
-import {
-  getFirestorePolls,
-  updateFirestorePoll,
-} from "@/store/firestorePollStore";
+import { updateFirestorePoll } from "@/store/firestorePollStore";
 import { Poll } from "@/types/poll";
+
+type Props = {
+  initialPoll: Poll;
+};
 
 function getCategoryStyle(category: string) {
   const normalizedCategory = category.toLowerCase();
@@ -34,77 +34,25 @@ function getCategoryStyle(category: string) {
   return "bg-indigo-50 text-indigo-700 border-indigo-200";
 }
 
-function createSlug(text: string) {
-  return text
-    .toLowerCase()
-    .trim()
-    .replaceAll("ğ", "g")
-    .replaceAll("ü", "u")
-    .replaceAll("ş", "s")
-    .replaceAll("ı", "i")
-    .replaceAll("ö", "o")
-    .replaceAll("ç", "c")
-    .replace(/[^a-z0-9\s-]/g, "")
-    .replace(/\s+/g, "-")
-    .replace(/-+/g, "-");
-}
-
-export default function PollDetailClient() {
-  const params = useParams();
-  const slug = String(params.slug);
-
-  const [poll, setPoll] = useState<Poll | null>(null);
-  const [comments, setComments] = useState<Poll["comments"]>([]);
-  const [options, setOptions] = useState<Poll["options"]>([]);
+export default function PollDetailClient({ initialPoll }: Props) {
+  const [poll, setPoll] = useState<Poll | null>(initialPoll);
+  const [comments, setComments] = useState<Poll["comments"]>(
+    initialPoll.comments || []
+  );
+  const [options, setOptions] = useState<Poll["options"]>(
+    initialPoll.options || []
+  );
   const [selectedOptionIndex, setSelectedOptionIndex] = useState<number | null>(
     null
   );
-  const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    async function loadPoll() {
-      try {
-        const firestorePolls = await getFirestorePolls();
+    const savedVote = localStorage.getItem(`voyter_vote_${initialPoll.id}`);
 
-        const foundPoll = firestorePolls.find((item) => {
-          const itemSlug =
-            item.slug?.trim() || createSlug(item.title) || String(item.id);
-
-          return itemSlug === slug || String(item.id) === slug;
-        });
-
-        if (!foundPoll) {
-          return;
-        }
-
-        setPoll(foundPoll);
-        setComments(foundPoll.comments || []);
-        setOptions(foundPoll.options || []);
-
-        const savedVote = localStorage.getItem(`voyter_vote_${foundPoll.id}`);
-
-        if (savedVote !== null) {
-          setSelectedOptionIndex(Number(savedVote));
-        }
-      } catch (error) {
-        console.error("Firestore anket detayı yüklenemedi:", error);
-      } finally {
-        setIsLoaded(true);
-      }
+    if (savedVote !== null) {
+      setSelectedOptionIndex(Number(savedVote));
     }
-
-    loadPoll();
-  }, [slug]);
-
-  if (!isLoaded) {
-    return (
-      <main className="min-h-screen px-4 py-6 text-slate-900">
-        <div className="mx-auto max-w-3xl rounded-3xl border border-slate-200 bg-white p-6 text-center text-slate-500 shadow-sm">
-          Anket yükleniyor...
-        </div>
-      </main>
-    );
-  }
+  }, [initialPoll.id]);
 
   if (!poll) {
     return (
