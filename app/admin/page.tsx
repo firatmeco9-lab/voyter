@@ -1,4 +1,8 @@
 "use client";
+import {
+  addFirestorePoll,
+  updateFirestorePoll,
+} from "@/store/firestorePollStore";
 import { createAnonymousName } from "@/data/anonymousNames";
 import { useEffect, useState } from "react";
 import { collection, getDocs } from "firebase/firestore";
@@ -259,13 +263,18 @@ export default function AdminPage() {
     };
 
     if (editingPollId !== null) {
-      updatePoll(pollData);
-      alert("Anket güncellendi");
-    } else {
-      addPoll(pollData);
-      await addFirestorePoll(pollData);
-      alert("Anket oluşturuldu");
-    }
+  updatePoll(pollData);
+
+  if (pollData.firestoreId) {
+    await updateFirestorePoll(pollData.firestoreId, pollData);
+  }
+
+  alert("Anket güncellendi");
+} else {
+  addPoll(pollData);
+  await addFirestorePoll(pollData);
+  alert("Anket oluşturuldu");
+}
 
     if (editingSuggestionId !== null) {
       await removeSuggestion(editingSuggestionId);
