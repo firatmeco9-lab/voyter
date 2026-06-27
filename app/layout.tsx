@@ -1,4 +1,7 @@
-export const metadata = {
+import type { Metadata } from "next";
+import "./globals.css";
+
+export const metadata: Metadata = {
   metadataBase: new URL("https://voyter.vercel.app"),
 
   title: {
@@ -38,3 +41,15 @@ export const metadata = {
     canonical: "https://voyter.vercel.app",
   },
 };
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <html lang="tr">
+      <body>{children}</body>
+    </html>
+  );
+}
