@@ -210,7 +210,8 @@ export default function AdminPage() {
     }
   }
 
-  async function savePollFromForm() {
+ async function savePollFromForm() {
+  try {
     const cleanTitle = title.trim();
     const cleanCategory = category.trim() || "Gündem";
     const cleanImageUrl = imageUrl.trim();
@@ -237,7 +238,6 @@ export default function AdminPage() {
 
     const pollData: Poll = {
       id: editingPollId ?? Date.now(),
-      firestoreId: currentPoll?.firestoreId,
       title: cleanTitle,
       category: cleanCategory,
       imageUrl: cleanImageUrl,
@@ -261,18 +261,24 @@ export default function AdminPage() {
     };
 
     if (editingPollId !== null) {
-      updatePoll(pollData);
-
-      if (!pollData.firestoreId) {
-        alert("Firestore ID bulunamadı. Anket Firestore üzerinde güncellenemedi.");
+      if (!currentPoll?.firestoreId) {
+        alert("Firestore ID bulunamadı. Anket güncellenemedi.");
         return;
       }
 
-      await updateFirestorePoll(pollData.firestoreId, pollData);
+      const updatedPollData: Poll = {
+        ...pollData,
+        firestoreId: currentPoll.firestoreId,
+      };
+
+      updatePoll(updatedPollData);
+      await updateFirestorePoll(currentPoll.firestoreId, updatedPollData);
+
       alert("Anket güncellendi");
     } else {
       addPoll(pollData);
       await addFirestorePoll(pollData);
+
       alert("Anket oluşturuldu");
     }
 
@@ -283,7 +289,11 @@ export default function AdminPage() {
     resetForm();
     await refreshData();
     setActivePanel("polls");
+  } catch (error) {
+    console.error("Anket kaydedilirken hata:", error);
+    alert("Anket kaydedilirken hata oluştu. F12 Console'a bak.");
   }
+}
 
   async function handleDeletePoll(pollId: number) {
     if (!confirm("Bu anketi silmek istediğine emin misin?")) return;
