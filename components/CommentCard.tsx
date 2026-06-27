@@ -12,6 +12,7 @@ export default function CommentCard({ comment, onLikeComment }: Props) {
   const storageKey = `voyter_comment_like_${comment.id}`;
 
   const [liked, setLiked] = useState(false);
+  const [expanded, setExpanded] = useState(false);
 
   const avatarLetter = useMemo(() => {
     return comment.authorName.charAt(0).toUpperCase();
@@ -26,14 +27,19 @@ export default function CommentCard({ comment, onLikeComment }: Props) {
   }, [storageKey]);
 
   function handleLike() {
-    if (liked) {
-      return;
-    }
+    if (liked) return;
 
     localStorage.setItem(storageKey, "true");
     setLiked(true);
     onLikeComment(comment.id);
   }
+
+  const isLongComment = comment.text.length > 260;
+
+  const displayedText =
+    expanded || !isLongComment
+      ? comment.text
+      : `${comment.text.slice(0, 260)}...`;
 
   return (
     <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 transition hover:border-indigo-200 hover:bg-indigo-50/40">
@@ -52,8 +58,17 @@ export default function CommentCard({ comment, onLikeComment }: Props) {
           </div>
 
           <p className="break-words text-[15px] leading-relaxed text-slate-700">
-            {comment.text}
+            {displayedText}
           </p>
+
+          {isLongComment && (
+            <button
+              onClick={() => setExpanded(!expanded)}
+              className="mt-2 text-sm font-black text-indigo-600 hover:text-indigo-800"
+            >
+              {expanded ? "Daha az göster" : "Devamını oku"}
+            </button>
+          )}
 
           <button
             onClick={handleLike}
