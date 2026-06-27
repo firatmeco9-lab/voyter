@@ -1,53 +1,40 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import Script from "next/script";
-import "./globals.css";
+export const metadata = {
+  metadataBase: new URL("https://voyter.vercel.app"),
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
+  title: {
+    default: "Voyter - Trend Gündem Anketleri ve Anonim Yorumlar",
+    template: "%s | Voyter",
+  },
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+  description:
+    "Voyter'da gündem anketlerine oy ver, anonim yorumları oku ve popüler tartışmaları keşfet. Spor, teknoloji, film, ilişki ve sosyal gündem anketleri burada.",
 
-export const metadata: Metadata = {
-  title: "Voyter",
-  description: "Anonim anket ve yorum platformu",
+  keywords: [
+    "anket",
+    "gündem anketleri",
+    "trend anketler",
+    "anonim yorum",
+    "oy verme",
+    "popüler anketler",
+    "spor anketleri",
+    "film anketleri",
+    "teknoloji anketleri",
+    "ilişki anketleri",
+    "karşılaştırma anketleri",
+    "voyter",
+  ],
+
+  openGraph: {
+    title: "Voyter - Trend Gündem Anketleri ve Anonim Yorumlar",
+    description:
+      "Gündem anketlerine oy ver, anonim yorumları keşfet ve popüler tartışmaları takip et.",
+    url: "https://voyter.vercel.app",
+    siteName: "Voyter",
+    locale: "tr_TR",
+    type: "website",
+  },
+
+  alternates: {
+    canonical: "https://voyter.vercel.app",
+  },
 };
-
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
-  return (
-    <html
-      lang="tr"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
-      <head>
-        <Script
-          src="https://www.googletagmanager.com/gtag/js?id=G-QYWV9XCQ94"
-          strategy="afterInteractive"
-        />
-
-        <Script id="google-analytics" strategy="afterInteractive">
-          {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-
-            gtag('config', 'G-QYWV9XCQ94');
-          `}
-        </Script>
-      </head>
-
-      <body className="min-h-full flex flex-col">
-        {children}
-      </body>
-    </html>
-  );
-}
