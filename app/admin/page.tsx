@@ -19,7 +19,7 @@ import {
   SuggestedPoll,
 } from "@/store/suggestionStore";
 import { Poll } from "@/types/poll";
-import { addFirestorePoll } from "@/store/firestorePollStore";
+
 
 type AdminOption = {
   text: string;
