@@ -1,5 +1,5 @@
 "use client";
-
+import { createAnonymousName } from "@/data/anonymousNames";
 import { useEffect, useState } from "react";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase";
@@ -27,13 +27,7 @@ type ActivePanel = "polls" | "create" | "suggestions" | "sponsors";
 const ADMIN_PASSWORD =
   process.env.NEXT_PUBLIC_ADMIN_PASSWORD || "voyter123";
 
-const commentNames = [
-  "AsabiKarınca77",
-  "TurboTost35",
-  "ŞüpheliPenguen64",
-  "GececiKebap42",
-  "UykusuzMandalina18",
-];
+
 
 export default function AdminPage() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -258,7 +252,7 @@ export default function AdminPage() {
       })),
       comments: cleanComments.map((comment, index) => ({
         id: Date.now() + index,
-        authorName: commentNames[index % commentNames.length],
+       authorName: createAnonymousName(),
         text: comment,
         likes: 0,
       })),
