@@ -1,25 +1,21 @@
 "use client";
+
+import { createAnonymousName } from "@/data/anonymousNames";
+import { db } from "@/lib/firebase";
+import { uploadImage } from "@/lib/uploadImage";
 import {
   addFirestorePoll,
   updateFirestorePoll,
 } from "@/store/firestorePollStore";
-import { createAnonymousName } from "@/data/anonymousNames";
-import { useEffect, useState } from "react";
-import { collection, getDocs } from "firebase/firestore";
-import { db } from "@/lib/firebase";
-import { uploadImage } from "@/lib/uploadImage";
-import {
-  addPoll,
-  deletePoll,
-  updatePoll,
-} from "@/store/pollStore";
+import { addPoll, deletePoll, updatePoll } from "@/store/pollStore";
 import {
   getSuggestions,
   removeSuggestion,
   SuggestedPoll,
 } from "@/store/suggestionStore";
 import { Poll } from "@/types/poll";
-
+import { collection, getDocs } from "firebase/firestore";
+import { useEffect, useState } from "react";
 
 type AdminOption = {
   text: string;
@@ -30,8 +26,6 @@ type ActivePanel = "polls" | "create" | "suggestions" | "sponsors";
 
 const ADMIN_PASSWORD =
   process.env.NEXT_PUBLIC_ADMIN_PASSWORD || "voyter123";
-
-
 
 export default function AdminPage() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -83,6 +77,7 @@ export default function AdminPage() {
 
     const firestorePolls = snapshot.docs.map((doc) => ({
       ...(doc.data() as Poll),
+      firestoreId: doc.id,
     }));
 
     setPolls(firestorePolls);
@@ -238,8 +233,11 @@ export default function AdminPage() {
       return;
     }
 
+    const currentPoll = polls.find((item) => item.id === editingPollId);
+
     const pollData: Poll = {
       id: editingPollId ?? Date.now(),
+      firestoreId: currentPoll?.firestoreId,
       title: cleanTitle,
       category: cleanCategory,
       imageUrl: cleanImageUrl,
@@ -256,25 +254,27 @@ export default function AdminPage() {
       })),
       comments: cleanComments.map((comment, index) => ({
         id: Date.now() + index,
-       authorName: createAnonymousName(),
+        authorName: createAnonymousName(),
         text: comment,
         likes: 0,
       })),
     };
 
     if (editingPollId !== null) {
-  updatePoll(pollData);
+      updatePoll(pollData);
 
-  if (pollData.firestoreId) {
-    await updateFirestorePoll(pollData.firestoreId, pollData);
-  }
+      if (!pollData.firestoreId) {
+        alert("Firestore ID bulunamadı. Anket Firestore üzerinde güncellenemedi.");
+        return;
+      }
 
-  alert("Anket güncellendi");
-} else {
-  addPoll(pollData);
-  await addFirestorePoll(pollData);
-  alert("Anket oluşturuldu");
-}
+      await updateFirestorePoll(pollData.firestoreId, pollData);
+      alert("Anket güncellendi");
+    } else {
+      addPoll(pollData);
+      await addFirestorePoll(pollData);
+      alert("Anket oluşturuldu");
+    }
 
     if (editingSuggestionId !== null) {
       await removeSuggestion(editingSuggestionId);
